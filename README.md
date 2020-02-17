@@ -32,4 +32,3 @@ You must backup the app_key and password.
 - Keystoke to send username and password
 - Timed password to clipboard
 
-
