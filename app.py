@@ -29,12 +29,6 @@ default = config['DEFAULT']
 keystroke = config['KeyStroke']
 
 
-def timed_reveal(token, timer=5):
-    print(token, end="\r")
-    sleep(timer)
-    print("display expired")
-    token = None
-
 
 # reference: https://pynative.com/python-generate-random-string/
 def randomStringDigits(stringLength=32):
@@ -51,7 +45,6 @@ def encrypt(password, salt, message):
     try:
         return ct.encrypt(password, salt, message)
     except Exception as e:
-        #print(e)
         return randomStringDigits()
 
 
@@ -59,7 +52,6 @@ def decrypt(password, salt, token):
     try:
         return ct.decrypt(password, salt, token)
     except Exception as e:
-        #print(e)
         return randomStringDigits()
 
 
@@ -138,6 +130,9 @@ def find_record(keyword):
 
 def display_cred(password, salt, recid):
     result = dr.getRecentSubRecord(recid)
+
+    #print(f"{result.password}")
+
     displayP = decrypt(password, salt, result.password).decode()
     print(f"{result.user} {displayP}")
     displayP = None
@@ -153,13 +148,20 @@ def push_cred(password, salt, delay, recid, first, second):
     py.write(result.user)
     py.press(first)
 
-    result = dr.getRecentSubRecord(recid)
     displayP = decrypt(password, salt, result.password).decode()
     py.write(displayP)
     displayP = None
     del displayP
     py.press(second)
 
+def push_pw(password, salt, delay, recid):
+    sleep(delay)
+    result = dr.getRecentSubRecord(recid)
+
+    displayP = decrypt(password, salt, result.password).decode()
+    py.write(displayP)
+    displayP = None
+    del displayP
 
 def copy_cred(password, salt, recid):
     result = dr.getRecentSubRecord(recid)
@@ -175,10 +177,12 @@ def copy_cred(password, salt, recid):
 
 
 
-def update_subrecord(recid):
+def update_subrecord(recid, password, salt):
     new_subrecord = dr.SubRecord()
     new_subrecord.user = input("enter username: ")
-    new_subrecord.password = getpass("enter password: ")
+    new_subrecord.password = encrypt(
+                                password, salt,
+                                (getpass("enter password: "))).decode()
 
     dr.appendSubRecord(recid, new_subrecord)
 
@@ -265,12 +269,15 @@ class bot(Cmd):
 
         push_cred(self.pwhash, self.app_key, self.delay, recid, first, second)
 
+    def do_Push_Password(self,arg):
+        push_pw(self.pwhash, self.app_key, self.delay, arg)
+
     def do_Copy_Cred(self, arg):
         copy_cred(self.pwhash, self.app_key, arg)
 
 
     def do_Update_Cred(self, arg):
-        update_subrecord(arg)
+        update_subrecord(arg, self.pwhash, self.app_key)
 
 #    def do_Func(self, arg):
 #        pass
@@ -278,7 +285,10 @@ class bot(Cmd):
 
 
 if __name__ == "__main__":
-    bot().cmdloop()
+    try:
+        bot().cmdloop()
+    except:
+        print("error")
 
 
 
