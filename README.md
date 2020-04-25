@@ -1,5 +1,5 @@
 # aBot
-keychain bot
+authBot, authentication bot to help store encrypted credentials locally and push keystrokes to form inputs. 
 
 # ALPHA
 This is currently an alpha.
