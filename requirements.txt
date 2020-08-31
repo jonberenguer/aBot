@@ -3,7 +3,7 @@ cryptography==2.8
 marshmallow==3.4.0
 marshmallow-sqlalchemy==0.21.0
 MouseInfo==0.1.2
-Pillow==7.0.0
+Pillow
 PyAutoGUI==0.9.48
 pycparser==2.19
 PyGetWindow==0.0.8
